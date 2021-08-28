@@ -27,7 +27,7 @@ A digital image, sometimes called a [raster](https://en.wikipedia.org/wiki/Raste
 
 Let’s view a digital image in GEE to better understand this concept:
 
-1. In the map window of GEE, click on the Point geometry tool using the [geometry drawing tools](https://developers.google.com/earth-engine/playground#geometry-tools) to define your area of interest. As a reminder, you can find more information on geometry drawing tools in GEE’s Guides. Name the import `point`.
+1. In the map window of GEE, click on the Point geometry tool using the [geometry drawing tools](https://developers.google.com/earth-engine/playground#geometry-tools) to define your area of interest (for the purposes of consistency in this exercise, place a point on the Virginia Tech Drillfield, which will bring you roughly to `[-80.42214051858835,37.227722521394924]`). As a reminder, you can find more information on geometry drawing tools in GEE’s Guides. Name the import `point`.
 
 2. Import NAIP imagery by searching for 'naip' and choosing the *'NAIP: National Agriculture Imagery Program'* raster dataset. Name the import `naip`. 
 
@@ -47,7 +47,7 @@ Let’s view a digital image in GEE to better understand this concept:
     ```
 
 4. Expand the image object that is printed to the console by clicking on the dropdown triangles. Expand the property called `bands` and expand one of the bands (0, for example). Note that the CRS transform is stored in the `crs_transform` property underneath the band dropdown and the CRS is stored in the `crs` property, which references an EPSG code. 
-** EPSG Codes** EPSG codes are 4-5 digit numbers that represent CRS definitions, of which each code represents a particular definition. The acronym EPGS, comes from the (now defunct) European Petroleum Survey Group.  The CRS of our image is [EPSG:26910](http://spatialreference.org/ref/epsg/nad83-utm-zone-10n/). You can often learn more about those [EPSG codes](http://www.epsg-registry.org/) from [thespatialreference.org](http://spatialreference.org/). The CRS transform is a list  `[m00, m01, m02, m10 m11 m12]`  in the notation of [this reference](http://docs.oracle.com/javase/7/docs/api/java/awt/geom/AffineTransform.html).
+** EPSG Codes** EPSG codes are 4-5 digit numbers that represent CRS definitions, of which each code represents a particular definition. The acronym EPGS, comes from the (now defunct) European Petroleum Survey Group.  The CRS of our image is [EPSG:26917](https://spatialreference.org/ref/epsg/nad83-utm-zone-17n/). You can often learn more about those [EPSG codes](http://www.epsg-registry.org/) from [thespatialreference.org](http://spatialreference.org/). The CRS transform is a list  `[m00, m01, m02, m10, m11, m12]`  in the notation of [this reference](http://docs.oracle.com/javase/7/docs/api/java/awt/geom/AffineTransform.html).
    
 5. In addition to using the dropdowns, you can also access these data programmatically with the `.projection()` method:
 
