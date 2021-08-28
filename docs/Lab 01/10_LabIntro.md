@@ -232,23 +232,81 @@ Spectral resolution refers to the number and width of spectral bands in which th
 A figure representing common optical sensors and their spectral resolution can be viewed below [(image source)](https://www.researchgate.net/figure/Spectral-resolution-of-currently-available-optical-satellite-sensors-grouped-by-different_fig1_348695518):
 
 <p align="center">
-  <img width="700" height="450" src="https://user-images.githubusercontent.com/17105526/131231582-1b0ca02b-8b9b-4be1-a6f6-c997e9b6d60a.png" alt = "common_optical_sensors_spectral_resolution">
+  <img width="800" height="450" src="https://user-images.githubusercontent.com/17105526/131231582-1b0ca02b-8b9b-4be1-a6f6-c997e9b6d60a.png" alt = "common_optical_sensors_spectral_resolution">
 </p>
 
 
 There is an easy way to check the number of bands in Earth Engine, but no way to get an understanding of the relative *spectral response* of the bands, where spectral response is a function measured in the laboratory to characterize the detector. 
 
-To see the number of bands in an image, use:
+1. To see the number of bands in an image, use:
+
+```javascript
+// Get the MODIS band names as a List
+var modisBands = modisImage.bandNames();
+
+// Print the list.
+print('MODIS bands:', modisBands);
+
+// Print the length of the list.
+print('Length of the bands list:', modisBands.length());
+```
+
+2. Note that only some of those bands contain radiometric data. Lots of them have other information, like quality control data. So the band listing isn't necessarily an indicator of spectral resolution, but can inform your investigation of the spectral resolution of the dataset. Try printing the bands from some of the other sensors to get a sense of spectral resolution.
+
+# Section 5. Temporal Resolution
+
+Temporal resolution refers to the *revisit time*, or temporal *cadence* of a particular sensor’s image stream. Think of this as the frequency of pixels in a time series at a given location. 
+
+**1. MODIS**. MODIS (either Terra or Aqua) produces imagery at approximately a daily cadence. To see the time series of images at a location, you can `print()` the `ImageCollection`, filtered to your area and date range of interest. For example, to see the MODIS images in 2011:
 
   ```javascript
-  // Get the MODIS band names as a List
-  var modisBands = modisImage.bandNames();
-  // Print the list.
-  print('MODIS bands:', modisBands);
-  // Print the length of the list.
-  print('Length of the bands list:', modisBands.length());
+  // Filter the MODIS mosaics to one year.   
+  var modisSeries = myd09.filterDate('2011-01-01', '2011-12-31');      
+
+  // Print the filtered  MODIS ImageCollection.   
+  print('MODIS series:', modisSeries);  
   ```
 
-It's worth noting that only some of those bands contain radiometric data. Lots of them have other information, like quality control data. So the band listing isn't necessarily an indicator of spectral resolution, but can inform your investigation of the spectral resolution of the dataset. Try printing the bands from some of the other sensors to get a sense of spectral resolution.
+   Expand the `features` property of the printed `ImageCollection` to see a `List` of all the images in the collection. Observe that the date of each image is part of the filename. Note the daily cadence. Observe that each MODIS image is a global mosaic, so there's no need to filter by location.
 
+**2. Landsat**. Landsats (5 and later) produce imagery at 16-day cadence. TM and MSS are on the same satellite (Landsat 5), so it suffices to print the TM series to see the temporal resolution. Unlike MODIS, data from these sensors is produced on a scene basis, so to see a time series, it's necessary to filter by location in addition to time:
+
+```javascript
+// Filter to get a year's worth of TM scenes.
+var tmSeries = tm
+  .filterBounds(Map.getCenter())
+  .filterDate('2011-01-01', '2011-12-31');
+
+// Print the filtered TM ImageCollection. 
+print('TM series:', tmSeries);
+```
+
+  1. Again expand the `features` property of the printed `ImageCollection`. Note that a [careful parsing of the TM image IDs](http://landsat.usgs.gov/naming_conventions_scene_identifiers.php) indicates the day of year (DOY) on which the image was collected. A slightly more cumbersome method involves expanding each Image in the list, expanding its properties and looking for the 'DATE_ACQUIRED' property. 
+
+  2. To make this into a nicer list of dates, [map()](https://en.wikipedia.org/wiki/Map_(higher-order_function)) a function over the ImageCollection. First define a function to get a Date from the metadata of each image, using the system properties:
+
+      ```javascript
+      var getDate = function(image) {
+      // Note that you need to cast the argument
+      var time = ee.Image(image).get('system:time_start');
+      // Return the time (in milliseconds since Jan 1, 1970) as a Date
+      return ee.Date(time);
+      };
+      ```
+
+  3. Turn the `ImageCollection` into a `List` and[ map() the function](https://developers.google.com/earth-engine/getstarted#mapping-what-to-do-instead-of-a-for-loop) over it:
+
+      ```javascript
+      var dates = tmSeries.toList(100).map(getDate);
+      print(dates);
+      ```
+  
+  4. Print the result:
+
+      ```javascript
+      print(dates);
+      ```
+
+
+ 
 
