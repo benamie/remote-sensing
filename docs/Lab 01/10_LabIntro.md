@@ -161,6 +161,7 @@ In the present context, spatial resolution often means pixel size. In practice, 
                                 .sort('CLOUD_COVER')     
                                 //  Get the least cloudy image.     
                                 .first());  
+                                
         // Display the MSS image as a color-IR composite.
         Map.addLayer(mssImage, {bands: ['B3', 'B2', 'B1'], min: 0, max: 200}, 'MSS');
         ```
@@ -186,9 +187,17 @@ In the present context, spatial resolution often means pixel size. In practice, 
           .filterDate('2011-05-01', '2011-10-01')
           .sort('CLOUD_COVER')
           .first());
+          
         // Display the TM image as a color-IR composite.
         Map.addLayer(tmImage, {bands: ['B4', 'B3', 'B2'], min: 0, max: 0.4}, 'TM'); 
         ```
+        ---
+        :warning: **Question 1**
+       
+        By assigning the NIR, red, and green bands in RGB (4-3-2), what features appear bright red in a Landsat 5 image and why?
+        
+        ---
+
 
     3. For some hints about why the TM data is not the same date as the MSS data, see [this page](https://www.usgs.gov/core-science-systems/nli/landsat/landsat-5?qt-science_support_page_related_con=0#qt-science_support_page_related_con).
 
@@ -211,9 +220,9 @@ In the present context, spatial resolution often means pixel size. In practice, 
 
         // Mosaic adjacent images into a single image.
         var naipImage = naipImages.mosaic();
+        
         // Display the NAIP mosaic as a color-IR composite.
         Map.addLayer(naipImage, {bands: ['N', 'R', 'G']}, 'NAIP');
-
         ```
 
     2. Check the scale by getting the first image from the mosaic (a mosaic doesn't know what its projection is, since the mosaicked images might all have different projections), getting its projection, and getting its scale (meters):
@@ -307,6 +316,27 @@ print('TM series:', tmSeries);
       print(dates);
       ```
 
+---
+:warning: **Question  2**
+       
+What is the temporal resolution of the Sentinel-2 satellites? How can you determine this from within GEE?
 
- 
+---
+
+# Section 6: Radiometric Resolution
+
+Radiometric resolution refers to the ability of an imaging system to record many levels of brightness: _coarse_ radiometric resolution would record a scene with only a few brightness levels, whereas _fine_ radiometric resolution would record the same scene using many levels of brightness. Some also consider radiometric resolution to refer to the _precision_ of the sensing, or the level of _quantization_.
+
+<p align="center">
+  <img width="500" height="200" src="https://user-images.githubusercontent.com/17105526/131238342-3ae706a1-999e-4622-994b-28be8d50c2f8.jpeg" alt = "sample_radiometric_resolution">
+</p>
+
+
+Radiometric resolution is determined from the minimum radiance to which the detector is sensitive (L<sub>min</sub>), the maximum radiance at which the sensor saturates (L<sub>max</sub>), and the number of bits used to store the DNs (Q): 
+
+<div align="center">
+Radiometric resolution = (L<sub>max</sub> - L<sub>min</sub>)/2<sub>Q</sup>.
+</div>
+  
+It might be possible to dig around in the metadata to find values for L<sub>min</sub> and L<sub>max</sub>, but computing radiometric resolution is generally not necessary unless you're studying phenomena that are distinguished by very subtle changes in radiance.
 
