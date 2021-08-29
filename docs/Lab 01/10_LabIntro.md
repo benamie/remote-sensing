@@ -269,6 +269,13 @@ print('Length of the bands list:', modisBands.length());
 
 2. Note that only some of those bands contain radiometric data. Lots of them have other information, like quality control data. So the band listing isn't necessarily an indicator of spectral resolution, but can inform your investigation of the spectral resolution of the dataset. Try printing the bands from some of the other sensors to get a sense of spectral resolution.
 
+---
+:warning: **Question 3**
+       
+What is the spectral resolution of the MODIS instrument, and how did you determine it?
+
+---
+
 # Section 5. Temporal Resolution
 
 Temporal resolution refers to the *revisit time*, or temporal *cadence* of a particular sensor’s image stream. Think of this as the frequency of pixels in a time series at a given location. 
@@ -324,7 +331,7 @@ print('TM series:', tmSeries);
       ```
 
 ---
-:warning: **Question  2**
+:warning: **Question  4**
        
 What is the temporal resolution of the Sentinel-2 satellites? How can you determine this from within GEE?
 
@@ -389,12 +396,12 @@ Note: ***You should rarely, if ever, have to use\*** **`reproject()` *and\*** **
 
 # Additional Exercises
 
-       
-Now that we have some familiarity with higher quality images, lets look at a few from the (broken) Landsat 7 satellite. *Using your downloading skills, now select an image that contains the Blacksburg area with minimal cloud cover from Landsat 7 (Collection 1 Tier 1 calibrated top-of-atmosphere (TOA) reflectance data product). *
 
 
 ---
-:warning: **Question 5
+:warning: **Question 5**
+
+Now that we have some familiarity with higher quality images, lets look at a few from the (broken) Landsat 7 satellite. *Using your downloading skills, now select an image that contains the Blacksburg area with minimal cloud cover from Landsat 7 (for now, using the Collection 1 Tier 1 calibrated top-of-atmosphere (TOA) reflectance data product). *
 
 Look at your image, what is the obvious (hint: post-2003) problem with it? What is the nature of that problem and what have some researchers done to try to correct it? (please research online in addition to using what you have learned in class/from the book)
 
@@ -402,14 +409,14 @@ Look at your image, what is the obvious (hint: post-2003) problem with it? What 
 
 
 ---
-:warning: **Question 6
+:warning: **Question 6**
 
 Name three major changes you can view in the Blacksburg Area in the last decade.
 
 ---
 
 ---
-:warning: **Question 7
+:warning: **Question 7**
 
 Conduct a search to compare the technical characteristics of the following sensors: 
 
@@ -423,5 +430,5 @@ Note: when using the internet to answer this question, be sure to cite your sour
 ---
 
 # Where to submit
-Submit your responses to these questions on [Gradescope](https://www.gradescope.com/courses/293173/assignments/1446622/submissions). All students who have been attending class have already been enrolled in Gradescope, although if for some reason you need to sign up again, the access code for our course is `6PEW3W`.
+Submit your responses to these questions on [Gradescope](https://www.gradescope.com/courses/293173/assignments/1446622/submissions) by 10am on Wednesday September 8. All students who have been attending class have already been enrolled in Gradescope, although if for some reason you need to sign up again, the access code for our course is `6PEW3W`.
 
