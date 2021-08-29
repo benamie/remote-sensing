@@ -174,6 +174,7 @@ In the present context, spatial resolution often means pixel size. In practice, 
           .projection().nominalScale();
         print('MSS scale:', mssScale);
         ```
+        
  3. The Thematic Mapper ([TM](https://landsat.gsfc.nasa.gov/landsat-4-5/tm)) was flown aboard Landsats 4-5. (It was succeeded by the Enhanced Thematic Mapper ([ETM+](https://landsat.gsfc.nasa.gov/about/enhanced-thematic-mapper)) aboard Landsat 7 and the Operational Land Imager ([OLI](https://landsat.gsfc.nasa.gov/landsat-8/operational-land-imager)) / Thermal Infrared Sensor ([TIRS](https://landsat.gsfc.nasa.gov/landsat-8/thermal-infrared-sensor-tirs)) sensors aboard Landsat 8.) TM data have a spatial resolution of 30 meters.
 
     1. Search for 'landsat 5 toa' and import the first result (which should be '*USGS Landsat 5 TM Collection 1 Tier 1 TOA Reflectance*'. Name the import `tm`.
@@ -211,7 +212,7 @@ In the present context, spatial resolution often means pixel size. In practice, 
         
 4. **NAIP**. The National Agriculture Imagery Program ([NAIP](http://www.fsa.usda.gov/programs-and-services/aerial-photography/imagery-programs/naip-imagery/)) is an effort to acquire imagery over the continental US on a 3-year rotation using airborne sensors. The imagery has a spatial resolution of 1-2 meters. 
       
-    1. Search for 'naip' and import the data set for *'NAIP: National Agriculture Imagery Program'*. Name the import naip. Since NAIP imagery is distributed as quarters of Digital Ortho Quads at irregular cadence, load everything from the most recent year in the acquisition cycle (2012) over the study area and [mosaic()](https://developers.google.com/earth-engine/guides/ic_composite_mosaic) it:
+    1. Search for 'naip' and import the data set for *'NAIP: National Agriculture Imagery Program'*. Name the import naip. Since NAIP imagery is distributed as quarters of Digital Ortho Quads at irregular cadence, load everything from the closest year to the examples in its acquisition cycle (2012) over the study area and [mosaic()](https://developers.google.com/earth-engine/guides/ic_composite_mosaic) it:
 
         ```javascript
         // Get NAIP images for the study period and region of interest.
@@ -232,6 +233,12 @@ In the present context, spatial resolution often means pixel size. In practice, 
         var naipScale = ee.Image(naipImages.first()).projection().nominalScale();
         print('NAIP scale:', naipScale);
         ```
+        ---
+        :warning: **Question 2**
+       
+        What is the scale of the most recent round of NAIP imagery for the sample area (2018), and how did you determine the scale?
+        
+        ---
 
 
 # Section 4: Spectral Resolution
@@ -334,9 +341,87 @@ Radiometric resolution refers to the ability of an imaging system to record many
 
 Radiometric resolution is determined from the minimum radiance to which the detector is sensitive (L<sub>min</sub>), the maximum radiance at which the sensor saturates (L<sub>max</sub>), and the number of bits used to store the DNs (Q): 
 
+
 <div align="center">
 Radiometric resolution = (L<sub>max</sub> - L<sub>min</sub>)/2<sub>Q</sup>.
 </div>
   
+  
 It might be possible to dig around in the metadata to find values for L<sub>min</sub> and L<sub>max</sub>, but computing radiometric resolution is generally not necessary unless you're studying phenomena that are distinguished by very subtle changes in radiance.
+
+
+
+# Section 7: Resampling and ReProjection
+
+Earth Engine makes every effort to handle projection and scale so that you don't have to. However, there are occasions where an understanding of projections is important to get the output you need. As an example, it's time to demystify the [reproject()](https://developers.google.com/earth-engine/apidocs/ee-image-reproject) calls in the previous examples. Earth Engine requests inputs to your computations in the projection and scale of the output. The map attached to the playground has a [Maps Mercator projection](http://epsg.io/3857). The scale is determined from the map's zoom level. When you add something to this map, Earth Engine secretly reprojects the input data to Mercator, resampling (with nearest neighbor) to screen resolution pixels based on the map's zoom level, then does all the computations with the reprojected, resampled imagery. In the previous examples, the reproject() calls force the computations to be done at the resolution of the input pixels: 1 meter.
+
+1. Re-run the edge detection code with and without the reprojection (Comment out all previous `Map.addLayer()` calls except for the original one)
+
+      ```javascript
+      // Zoom all the way in.
+      Map.centerObject(point, 21);
+      // Display edges computed on a reprojected image.
+      Map.addLayer(image.convolve(laplacianKernel), {min: 0, max: 255}, 
+        'Edges with little screen pixels');
+      // Display edges computed on the image at native resolution.
+      Map.addLayer(edges, {min: 0, max: 255}, 
+        'Edges with 1 meter pixels'); 
+      ```
+
+    What's happening here is that the projection specified in `reproject()` propagates backwards to the input, forcing all the computations to be performed in that projection. If you don't specify, the computations are performed in the projection and scale of the map (Mercator) at screen resolution.
+
+2. You can control how Earth Engine resamples the input with [`resample()`](https://developers.google.com/earth-engine/guides/resample). By default, all resampling is done with the nearest neighbor. To change that, call `resample()` on the *inputs*. Compare the input image, resampled to screen resolution with a bilinear and bicubic resampling:
+
+      ```javascript
+      // Resample the image with bilinear instead of the nearest neighbor.
+      var bilinearResampled = image.resample('bilinear');
+      Map.addLayer(bilinearResampled, {}, 'input image, bilinear resampling');
+      // Resample the image with bicubic instead of the nearest neighbor.
+      var bicubicResampled = image.resample('bicubic');
+      Map.addLayer(bicubicResampled, {}, 'input image, bicubic resampling');
+      ```
+
+3. Try zooming in and out, comparing to the input image resampled with the nearest with nearest neighbor (i.e. without `resample()` called on it).
+
+Note: ***You should rarely, if ever, have to use\*** **`reproject()` *and\*** **`resample()`**. Do not use `reproject()` or `resample()` unless necessary. They are only used here for demonstration purposes.
+
+
+
+# Additional Exercises
+
+       
+Now that we have some familiarity with higher quality images, lets look at a few from the (broken) Landsat 7 satellite. *Using your downloading skills, now select an image that contains the Blacksburg area with minimal cloud cover from Landsat 7 (Collection 1 Tier 1 calibrated top-of-atmosphere (TOA) reflectance data product). *
+
+
+---
+:warning: **Question 5
+
+Look at your image, what is the obvious (hint: post-2003) problem with it? What is the nature of that problem and what have some researchers done to try to correct it? (please research online in addition to using what you have learned in class/from the book)
+
+---
+
+
+---
+:warning: **Question 6
+
+Name three major changes you can view in the Blacksburg Area in the last decade.
+
+---
+
+---
+:warning: **Question 7
+
+Conduct a search to compare the technical characteristics of the following sensors: 
+
+(i) MODIS (NASA) versus Sentinel (ESA), and 
+(ii) AVHRR (NASA) versus IRS-P6 (or choose another Indian Remote Sensing satellite)  
+
+For which applications is one likely to be more suitable than the other ones?
+
+Note: when using the internet to answer this question, be sure to cite your sources and ensure that you are obtaining information from an official, reputable source!
+
+---
+
+# Where to submit
+Submit your responses to these questions on [Gradescope](https://www.gradescope.com/courses/293173/assignments/1446622/submissions). All students who have been attending class have already been enrolled in Gradescope, although if for some reason you need to sign up again, the access code for our course is `6PEW3W`.
 
